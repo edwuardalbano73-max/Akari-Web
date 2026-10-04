@@ -1,7 +1,7 @@
 {
   "name": "akari-web",
-  "version": "1.0.0",
-  "description": "Panel web privado de Akari Bot",
+  "version": "2.0.0",
+  "description": "Panel privado de Akari Bot",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
