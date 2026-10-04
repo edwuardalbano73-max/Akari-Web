@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Akari Panel 🌸</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="background-flowers">
+    🌸　🌷　🌸　🌺　🌸　🌷　🌸
+  </div>
+
+  <main class="panel-container">
+
+    <div class="panel-header">
+      <div>
+        <h1>🌸 Akari Bot</h1>
+        <p>Panel de configuración</p>
+      </div>
+
+      <button id="logoutButton" class="logout-button">
+        Salir
+      </button>
+    </div>
+
+    <section class="config-card">
+
+      <h2>💼 Work</h2>
+
+      <label>Tiempo</label>
+      <input
+        type="text"
+        id="workTime"
+        placeholder="30m"
+      >
+
+      <label>Mínimo</label>
+      <input
+        type="number"
+        id="workMin"
+        placeholder="300"
+      >
+
+      <label>Máximo</label>
+      <input
+        type="number"
+        id="workMax"
+        placeholder="500"
+      >
+
+    </section>
+
+    <section class="config-card">
+
+      <h2>🎲 Slut / Azar</h2>
+
+      <label>Tiempo</label>
+      <input
+        type="text"
+        id="slutTime"
+        placeholder="1h"
+      >
+
+      <label>Mínimo</label>
+      <input
+        type="number"
+        id="slutMin"
+        placeholder="300"
+      >
+
+      <label>Máximo</label>
+      <input
+        type="number"
+        id="slutMax"
+        placeholder="1000"
+      >
+
+      <label>Probabilidad de ganar (%)</label>
+      <input
+        type="number"
+        id="slutWinChance"
+        min="0"
+        max="100"
+        placeholder="20"
+      >
+
+    </section>
+
+    <section class="config-card">
+
+      <h2>💰 Crime</h2>
+
+      <label>Tiempo</label>
+      <input
+        type="text"
+        id="crimeTime"
+        placeholder="2h"
+      >
+
+      <label>Mínimo</label>
+      <input
+        type="number"
+        id="crimeMin"
+        placeholder="300"
+      >
+
+      <label>Máximo</label>
+      <input
+        type="number"
+        id="crimeMax"
+        placeholder="1000"
+      >
+
+      <label>Probabilidad de ganar (%)</label>
+      <input
+        type="number"
+        id="crimeWinChance"
+        min="0"
+        max="100"
+        placeholder="20"
+      >
+
+    </section>
+
+    <section class="config-card">
+
+      <h2>🥷 Rob</h2>
+
+      <label>Tiempo</label>
+      <input
+        type="text"
+        id="robTime"
+        placeholder="30m"
+      >
+
+      <label>Probabilidad de ganar (%)</label>
+      <input
+        type="number"
+        id="robWinChance"
+        min="0"
+        max="100"
+        placeholder="30"
+      >
+
+    </section>
+
+    <button id="saveButton" class="save-button">
+      💾 Guardar cambios
+    </button>
+
+    <p id="statusMessage"></p>
+
+  </main>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
