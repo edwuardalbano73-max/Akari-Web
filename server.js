@@ -1,4 +1,5 @@
 const express = require("express");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,34 +13,143 @@ const BOT_API_URL =
 const BOT_API_KEY =
     process.env.BOT_API_KEY;
 
+const sessions = new Map();
+
 app.use(express.json());
 app.use(express.static("public"));
 
 // =====================================================
-// 🔐 LOGIN
+// 🔐 SESIONES
 // =====================================================
 
-app.post("/login", (req, res) => {
+function getCookie(req, name) {
 
-    const { password } = req.body;
+    const cookies =
+        req.headers.cookie || "";
 
-    if (password !== WEB_PASSWORD) {
+    const parts =
+        cookies.split(";");
+
+    for (const part of parts) {
+
+        const [key, ...rest] =
+            part.trim().split("=");
+
+        if (key === name) {
+            return decodeURIComponent(
+                rest.join("=")
+            );
+        }
+    }
+
+    return null;
+}
+
+function requireSession(
+    req,
+    res,
+    next
+) {
+
+    const token =
+        getCookie(
+            req,
+            "akari_session"
+        );
+
+    if (
+        !token ||
+        !sessions.has(token)
+    ) {
         return res.status(401).json({
             success: false,
-            message: "Contraseña incorrecta."
+            message: "Sesión no válida."
         });
     }
 
-    res.json({
-        success: true
-    });
-});
+    next();
+}
 
 // =====================================================
-// 🌸 FUNCIÓN PARA LLAMAR A AKARI BOT
+// 🔑 LOGIN
 // =====================================================
 
-async function botRequest(endpoint, options = {}) {
+app.post(
+    "/login",
+    (req, res) => {
+
+        const password =
+            req.body?.password;
+
+        if (
+            password !==
+            WEB_PASSWORD
+        ) {
+            return res.status(401).json({
+                success: false,
+                message:
+                    "Contraseña incorrecta."
+            });
+        }
+
+        const token =
+            crypto.randomBytes(32)
+                .toString("hex");
+
+        sessions.set(
+            token,
+            Date.now()
+        );
+
+        res.setHeader(
+            "Set-Cookie",
+            `akari_session=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`
+        );
+
+        res.json({
+            success: true
+        });
+    }
+);
+
+// =====================================================
+// 🚪 LOGOUT
+// =====================================================
+
+app.post(
+    "/logout",
+    requireSession,
+    (req, res) => {
+
+        const token =
+            getCookie(
+                req,
+                "akari_session"
+            );
+
+        if (token) {
+            sessions.delete(token);
+        }
+
+        res.setHeader(
+            "Set-Cookie",
+            "akari_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0"
+        );
+
+        res.json({
+            success: true
+        });
+    }
+);
+
+// =====================================================
+// 🤖 BOT REQUEST
+// =====================================================
+
+async function botRequest(
+    endpoint,
+    options = {}
+) {
 
     if (!BOT_API_URL) {
         throw new Error(
@@ -54,19 +164,28 @@ async function botRequest(endpoint, options = {}) {
     }
 
     const url =
-        `${BOT_API_URL.replace(/\/$/, "")}${endpoint}`;
+        BOT_API_URL.replace(
+            /\/$/,
+            ""
+        ) + endpoint;
 
-    const response = await fetch(url, {
-        ...options,
+    const response =
+        await fetch(
+            url,
+            {
+                ...options,
 
-        headers: {
-            ...(options.headers || {}),
-            "Authorization":
-                `Bearer ${BOT_API_KEY}`,
-            "Content-Type":
-                "application/json"
-        }
-    });
+                headers: {
+                    ...(options.headers || {}),
+
+                    "Authorization":
+                        `Bearer ${BOT_API_KEY}`,
+
+                    "Content-Type":
+                        "application/json"
+                }
+            }
+        );
 
     const text =
         await response.text();
@@ -74,127 +193,133 @@ async function botRequest(endpoint, options = {}) {
     let data;
 
     try {
-        data = JSON.parse(text);
+        data =
+            JSON.parse(text);
     } catch {
-        console.error(
-            "❌ Akari Bot devolvió algo que NO es JSON:"
-        );
-
-        console.error(
-            "Status:",
-            response.status
-        );
-
-        console.error(
-            "Respuesta:",
-            text.substring(0, 500)
-        );
-
         throw new Error(
-            `Akari Bot respondió con HTTP ${response.status} en ${endpoint}.`
+            `Akari Bot respondió con HTTP ${response.status}.`
         );
     }
 
     return {
-        status: response.status,
+        status:
+            response.status,
+
         data
     };
 }
 
 // =====================================================
-// 📥 OBTENER CONFIGURACIÓN
+// 📥 CONFIG
 // =====================================================
 
-app.get("/api/config", async (req, res) => {
+app.get(
+    "/api/config",
+    requireSession,
+    async (req, res) => {
 
-    try {
+        try {
 
-        const result =
-            await botRequest("/api/config", {
-                method: "GET"
+            const result =
+                await botRequest(
+                    "/api/config",
+                    {
+                        method: "GET"
+                    }
+                );
+
+            res.status(
+                result.status
+            ).json(
+                result.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error obteniendo configuración:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message:
+                    error.message
             });
-
-        res.status(
-            result.status
-        ).json(
-            result.data
-        );
-
-    } catch (error) {
-
-        console.error(
-            "❌ Error obteniendo configuración:",
-            error
-        );
-
-        res.status(500).json({
-            success: false,
-            message:
-                error.message ||
-                "No se pudo conectar con Akari Bot."
-        });
+        }
     }
-});
+);
 
 // =====================================================
-// 📤 GUARDAR CONFIGURACIÓN
+// 📤 GUARDAR CONFIG
 // =====================================================
 
-app.post("/api/config", async (req, res) => {
+app.post(
+    "/api/config",
+    requireSession,
+    async (req, res) => {
 
-    try {
+        try {
 
-        const result =
-            await botRequest("/api/config", {
-                method: "POST",
+            const result =
+                await botRequest(
+                    "/api/config",
+                    {
+                        method: "POST",
 
-                body: JSON.stringify(
-                    req.body
-                )
+                        body:
+                            JSON.stringify(
+                                req.body
+                            )
+                    }
+                );
+
+            res.status(
+                result.status
+            ).json(
+                result.data
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error guardando configuración:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message:
+                    error.message
             });
-
-        res.status(
-            result.status
-        ).json(
-            result.data
-        );
-
-    } catch (error) {
-
-        console.error(
-            "❌ Error guardando configuración:",
-            error
-        );
-
-        res.status(500).json({
-            success: false,
-            message:
-                error.message ||
-                "No se pudo conectar con Akari Bot."
-        });
+        }
     }
-});
+);
 
 // =====================================================
-// 🌐 PÁGINA PRINCIPAL
+// 🌐 INICIO
 // =====================================================
 
-app.get("/", (req, res) => {
+app.get(
+    "/",
+    (req, res) => {
 
-    res.sendFile(
-        __dirname +
-        "/public/index.html"
-    );
-});
+        res.sendFile(
+            __dirname +
+            "/public/index.html"
+        );
+    }
+);
 
 // =====================================================
-// 🚀 SERVIDOR
+// 🚀 SERVER
 // =====================================================
 
-app.listen(PORT, () => {
-
-    console.log(
-        `🌸 Akari Web funcionando en el puerto ${PORT}`
-    );
-
-});
+app.listen(
+    PORT,
+    () => {
+        console.log(
+            `🌸 Akari Web funcionando en el puerto ${PORT}`
+        );
+    }
+);
