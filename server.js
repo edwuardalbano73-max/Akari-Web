@@ -11,11 +11,39 @@ const BOT_API_KEY = process.env.BOT_API_KEY;
 
 const sessions = new Map();
 
-app.use(express.json());
-
 const publicPath = path.join(__dirname, "public");
 
-app.use(express.static(publicPath));
+app.use(express.json());
+
+
+// ===============================
+// ARCHIVOS DE LA WEB
+// ===============================
+
+app.get("/", (req, res) => {
+    res.type("html");
+    res.sendFile(path.join(publicPath, "index.html"));
+});
+
+app.get("/style.css", (req, res) => {
+    res.type("css");
+    res.sendFile(path.join(publicPath, "style.css"));
+});
+
+app.get("/script.js", (req, res) => {
+    res.type("js");
+    res.sendFile(path.join(publicPath, "script.js"));
+});
+
+app.get("/panel.html", (req, res) => {
+    res.type("html");
+    res.sendFile(path.join(publicPath, "panel.html"));
+});
+
+
+// ===============================
+// COOKIES
+// ===============================
 
 function getCookie(req, name) {
     const cookies = req.headers.cookie || "";
@@ -31,6 +59,11 @@ function getCookie(req, name) {
     return null;
 }
 
+
+// ===============================
+// SESIÓN
+// ===============================
+
 function requireSession(req, res, next) {
     const token = getCookie(req, "akari_session");
 
@@ -44,6 +77,11 @@ function requireSession(req, res, next) {
     next();
 }
 
+
+// ===============================
+// LOGIN
+// ===============================
+
 app.post("/login", (req, res) => {
     const password = req.body?.password;
 
@@ -54,7 +92,9 @@ app.post("/login", (req, res) => {
         });
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
+    const token = crypto
+        .randomBytes(32)
+        .toString("hex");
 
     sessions.set(token, Date.now());
 
@@ -67,6 +107,11 @@ app.post("/login", (req, res) => {
         success: true
     });
 });
+
+
+// ===============================
+// LOGOUT
+// ===============================
 
 app.post("/logout", requireSession, (req, res) => {
     const token = getCookie(req, "akari_session");
@@ -85,13 +130,22 @@ app.post("/logout", requireSession, (req, res) => {
     });
 });
 
+
+// ===============================
+// PETICIONES AL BOT
+// ===============================
+
 async function botRequest(endpoint, options = {}) {
     if (!BOT_API_URL) {
-        throw new Error("BOT_API_URL no está configurada.");
+        throw new Error(
+            "BOT_API_URL no está configurada."
+        );
     }
 
     if (!BOT_API_KEY) {
-        throw new Error("BOT_API_KEY no está configurada.");
+        throw new Error(
+            "BOT_API_KEY no está configurada."
+        );
     }
 
     const url =
@@ -99,10 +153,15 @@ async function botRequest(endpoint, options = {}) {
 
     const response = await fetch(url, {
         ...options,
+
         headers: {
             ...(options.headers || {}),
-            Authorization: `Bearer ${BOT_API_KEY}`,
-            "Content-Type": "application/json"
+
+            Authorization:
+                `Bearer ${BOT_API_KEY}`,
+
+            "Content-Type":
+                "application/json"
         }
     });
 
@@ -124,58 +183,91 @@ async function botRequest(endpoint, options = {}) {
     };
 }
 
-app.get("/api/config", requireSession, async (req, res) => {
-    try {
-        const result = await botRequest("/api/config", {
-            method: "GET"
-        });
 
-        res
-            .status(result.status)
-            .json(result.data);
+// ===============================
+// OBTENER CONFIGURACIÓN
+// ===============================
 
-    } catch (error) {
-        console.error(
-            "Error obteniendo configuración:",
-            error
-        );
+app.get(
+    "/api/config",
+    requireSession,
+    async (req, res) => {
 
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        try {
+            const result =
+                await botRequest(
+                    "/api/config",
+                    {
+                        method: "GET"
+                    }
+                );
+
+            res
+                .status(result.status)
+                .json(result.data);
+
+        } catch (error) {
+
+            console.error(
+                "Error obteniendo configuración:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
     }
-});
+);
 
-app.post("/api/config", requireSession, async (req, res) => {
-    try {
-        const result = await botRequest("/api/config", {
-            method: "POST",
-            body: JSON.stringify(req.body)
-        });
 
-        res
-            .status(result.status)
-            .json(result.data);
+// ===============================
+// GUARDAR CONFIGURACIÓN
+// ===============================
 
-    } catch (error) {
-        console.error(
-            "Error guardando configuración:",
-            error
-        );
+app.post(
+    "/api/config",
+    requireSession,
+    async (req, res) => {
 
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        try {
+            const result =
+                await botRequest(
+                    "/api/config",
+                    {
+                        method: "POST",
+
+                        body:
+                            JSON.stringify(
+                                req.body
+                            )
+                    }
+                );
+
+            res
+                .status(result.status)
+                .json(result.data);
+
+        } catch (error) {
+
+            console.error(
+                "Error guardando configuración:",
+                error
+            );
+
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
     }
-});
+);
 
-app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(publicPath, "index.html")
-    );
-});
+
+// ===============================
+// INICIAR SERVIDOR
+// ===============================
 
 app.listen(PORT, () => {
     console.log(
