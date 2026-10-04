@@ -1,198 +1,543 @@
-* {
-    box-sizing: border-box;
-}
+<!DOCTYPE html>
+<html lang="es">
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background:
-        linear-gradient(
-            135deg,
-            #ffd6ea,
-            #ffeef7,
-            #ffdbea
-        );
-    color: #5b3450;
-}
+<head>
+    <meta charset="UTF-8">
 
-.flowers {
-    position: fixed;
-    top: 10px;
-    width: 100%;
-    text-align: center;
-    font-size: 22px;
-    opacity: .45;
-    pointer-events: none;
-}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-.login-container {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
+    <title>Akari Web 🌸</title>
 
-.login-card {
-    width: 100%;
-    max-width: 430px;
-    background: rgba(255,255,255,.9);
-    padding: 35px;
-    border-radius: 25px;
-    box-shadow: 0 15px 45px rgba(160,70,120,.2);
-    text-align: center;
-}
+    <link rel="stylesheet" href="/style.css">
+</head>
 
-.logo {
-    font-size: 60px;
-}
+<body>
 
-h1 {
-    margin-bottom: 5px;
-}
+    <div class="flowers">
+        🌸　🌷　🌸　🌺　🌸　🌷　🌸
+    </div>
 
-.subtitle {
-    color: #9b6b87;
-}
+    <main class="dashboard">
 
-.divider {
-    height: 1px;
-    background: #f1bfd8;
-    margin: 25px 0;
-}
+        <header class="topbar">
 
-label {
-    display: block;
-    text-align: left;
-    margin-top: 14px;
-    margin-bottom: 6px;
-    font-weight: bold;
-}
+            <div>
+                <h1>🌸 Akari Web</h1>
 
-input,
-textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #edbad5;
-    border-radius: 12px;
-    outline: none;
-    background: #fffafd;
-}
+                <p class="small">
+                    Panel privado de Akari Bot
+                </p>
+            </div>
 
-textarea {
-    min-height: 100px;
-    resize: vertical;
-}
+            <button
+                id="logoutButton"
+                class="logout"
+            >
+                Cerrar sesión
+            </button>
 
-button {
-    border: none;
-    border-radius: 12px;
-    padding: 13px 18px;
-    cursor: pointer;
-    font-weight: bold;
-}
+        </header>
 
-#loginButton,
-.save-button {
-    width: 100%;
-    margin-top: 20px;
-    background: #ff8fc5;
-    color: white;
-}
 
-.dashboard {
-    width: min(1200px, 94%);
-    margin: auto;
-    padding: 70px 0 40px;
-}
+        <section class="welcome-card">
 
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255,255,255,.85);
-    padding: 20px 25px;
-    border-radius: 20px;
-    margin-bottom: 20px;
-}
+            <h2>
+                🌸 Bienvenido al panel
+            </h2>
 
-.logout {
-    background: #ef6f9f;
-    color: white;
-}
+            <p>
+                Desde aquí puedes administrar
+                la configuración de Akari Bot.
+            </p>
 
-.welcome-card,
-.config-card {
-    background: rgba(255,255,255,.9);
-    border-radius: 20px;
-    padding: 22px;
-    box-shadow: 0 8px 25px rgba(160,70,120,.12);
-}
+            <p
+                id="configMessage"
+                class="status"
+            ></p>
 
-.welcome-card {
-    margin-bottom: 20px;
-}
+        </section>
 
-.grid {
-    display: grid;
-    grid-template-columns:
-        repeat(auto-fit, minmax(290px, 1fr));
-    gap: 18px;
-}
 
-.config-card h2 {
-    margin-top: 0;
-}
+        <section class="grid">
 
-.config-card h3 {
-    margin-bottom: 5px;
-}
 
-hr {
-    border: none;
-    border-top: 1px solid #f2cade;
-    margin: 22px 0;
-}
+            <!-- ECONOMÍA -->
 
-.secondary {
-    width: 100%;
-    margin-top: 12px;
-    background: #f5a6cc;
-    color: white;
-}
+            <div class="config-card">
 
-.switch-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    font-weight: normal;
-}
+                <h2>💰 Economía</h2>
 
-.switch-row input {
-    width: auto;
-}
+                <h3>Work</h3>
 
-.status {
-    text-align: center;
-    font-weight: bold;
-    margin-top: 15px;
-}
+                <label>
+                    Tiempo de espera (segundos)
+                </label>
 
-.small {
-    color: #8e6a7d;
-}
+                <input
+                    type="number"
+                    data-config="economy.work.cooldown"
+                    value="30"
+                >
 
-.shop-item {
-    background: #fff1f8;
-    border: 1px solid #f2c5db;
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-}
+                <label>
+                    Mínimo
+                </label>
 
-.shop-item button {
-    background: #e98caf;
-    color: white;
-    margin-top: 8px;
-}
+                <input
+                    type="number"
+                    data-config="economy.work.min"
+                    value="100"
+                >
+
+                <label>
+                    Máximo
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.work.max"
+                    value="300"
+                >
+
+                <hr>
+
+                <h3>Mslut</h3>
+
+                <label>
+                    Tiempo de espera
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.slut.cooldown"
+                    value="60"
+                >
+
+                <label>
+                    Mínimo
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.slut.min"
+                    value="300"
+                >
+
+                <label>
+                    Máximo
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.slut.max"
+                    value="550"
+                >
+
+                <hr>
+
+                <h3>Mcrime</h3>
+
+                <label>
+                    Tiempo de espera
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.crime.cooldown"
+                    value="120"
+                >
+
+                <label>
+                    Mínimo
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.crime.min"
+                    value="500"
+                >
+
+                <label>
+                    Máximo
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.crime.max"
+                    value="700"
+                >
+
+            </div>
+
+
+            <!-- DAILY Y BJ -->
+
+            <div class="config-card">
+
+                <h2>🎁 Daily / Blackjack</h2>
+
+                <h3>Daily</h3>
+
+                <label>
+                    Recompensa
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.daily.amount"
+                    value="500"
+                >
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="economy.daily.enabled"
+                        checked
+                    >
+
+                    Activar Daily
+
+                </label>
+
+                <hr>
+
+                <h3>BJ</h3>
+
+                <label>
+                    Tiempo de espera
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.bj.cooldown"
+                    value="30"
+                >
+
+                <label>
+                    Probabilidad de ganar (%)
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.bj.winChance"
+                    value="50"
+                    min="0"
+                    max="100"
+                >
+
+            </div>
+
+
+            <!-- ROB -->
+
+            <div class="config-card">
+
+                <h2>🥷 Rob</h2>
+
+                <label>
+                    Tiempo de espera
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.rob.cooldown"
+                    value="60"
+                >
+
+                <label>
+                    Probabilidad de éxito (%)
+                </label>
+
+                <input
+                    type="number"
+                    data-config="economy.rob.winChance"
+                    value="30"
+                    min="0"
+                    max="100"
+                >
+
+                <p class="small">
+                    Configura aquí el funcionamiento
+                    del comando Mrob.
+                </p>
+
+            </div>
+
+
+            <!-- BIENVENIDAS -->
+
+            <div class="config-card">
+
+                <h2>👋 Bienvenidas</h2>
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="welcome.enabled"
+                    >
+
+                    Activar bienvenidas
+
+                </label>
+
+                <label>
+                    Canal
+                </label>
+
+                <input
+                    type="text"
+                    data-config="welcome.channel"
+                    placeholder="ID del canal"
+                >
+
+                <label>
+                    Mensaje
+                </label>
+
+                <textarea
+                    data-config="welcome.message"
+                    placeholder="¡Bienvenido {member}!"
+                ></textarea>
+
+            </div>
+
+
+            <!-- DESPEDIDAS -->
+
+            <div class="config-card">
+
+                <h2>👋 Despedidas</h2>
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="goodbye.enabled"
+                    >
+
+                    Activar despedidas
+
+                </label>
+
+                <label>
+                    Canal
+                </label>
+
+                <input
+                    type="text"
+                    data-config="goodbye.channel"
+                    placeholder="ID del canal"
+                >
+
+                <label>
+                    Mensaje
+                </label>
+
+                <textarea
+                    data-config="goodbye.message"
+                    placeholder="¡Hasta pronto {member}!"
+                ></textarea>
+
+            </div>
+
+
+            <!-- INVITES -->
+
+            <div class="config-card">
+
+                <h2>📨 Invites</h2>
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="invites.enabled"
+                    >
+
+                    Activar invites
+
+                </label>
+
+                <label>
+                    Canal de logs
+                </label>
+
+                <input
+                    type="text"
+                    data-config="invites.channel"
+                    placeholder="ID del canal"
+                >
+
+            </div>
+
+
+            <!-- LOGS -->
+
+            <div class="config-card">
+
+                <h2>📋 Logs</h2>
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="logs.enabled"
+                    >
+
+                    Activar logs
+
+                </label>
+
+                <label>
+                    Canal de logs
+                </label>
+
+                <input
+                    type="text"
+                    data-config="logs.channel"
+                    placeholder="ID del canal"
+                >
+
+            </div>
+
+
+            <!-- SEGURIDAD -->
+
+            <div class="config-card">
+
+                <h2>🛡️ Seguridad</h2>
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="security.antiLink"
+                    >
+
+                    Anti-links
+
+                </label>
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="security.antiSpam"
+                    >
+
+                    Anti-spam
+
+                </label>
+
+                <label>
+                    Límite de spam
+                </label>
+
+                <input
+                    type="number"
+                    data-config="security.spamLimit"
+                    value="5"
+                >
+
+            </div>
+
+
+            <!-- AUTO -->
+
+            <div class="config-card">
+
+                <h2>🤖 Auto</h2>
+
+                <label class="switch-row">
+
+                    <input
+                        type="checkbox"
+                        data-config="auto.enabled"
+                    >
+
+                    Activar respuestas automáticas
+
+                </label>
+
+                <p class="small">
+                    Las respuestas automáticas
+                    configuradas en el bot se mantendrán
+                    activas cuando esta opción esté encendida.
+                </p>
+
+            </div>
+
+
+            <!-- SHOP -->
+
+            <div class="config-card">
+
+                <h2>🛒 Shop</h2>
+
+                <p class="small">
+                    La tienda puede configurarse
+                    desde la configuración del bot.
+                </p>
+
+                <div class="shop-item">
+
+                    <strong>
+                        🛍️ Tienda de Akari
+                    </strong>
+
+                    <p>
+                        Usa Mshop dentro de Discord.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- MODERACIÓN -->
+
+            <div class="config-card">
+
+                <h2>🔨 Moderación</h2>
+
+                <p>
+                    Los comandos de moderación
+                    se administran directamente
+                    desde Discord.
+                </p>
+
+                <p class="small">
+                    Mban · Mkick · Mwarn · Mmute ·
+                    Mpurge · Mlock · Mslowmode
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+        <section class="welcome-card">
+
+            <button
+                id="saveButton"
+                class="save-button"
+            >
+                💾 Guardar cambios 🌸
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <script src="/script.js"></script>
+
+</body>
+
+</html>
